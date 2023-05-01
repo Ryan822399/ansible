@@ -1,0 +1,14 @@
+- name: Add ssh key for ansible-deploy
+  authorized_key:
+    user: ansible-deploy
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICqgBylQdXDV1/xthVkXN6Fvn/8XZfd7hT8kmj5V5zBl ansible"
+
+- name: generate sshd_config file from template
+  tags: ssh
+  template:
+    src: "{{ ssh_template_file }}"
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart_sshd

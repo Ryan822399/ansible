@@ -1,0 +1,40 @@
+---
+# all servers
+- hosts: all
+  become: true
+  pre_tasks:
+  - name: install updates (CentOS)
+    tags: always
+    dnf:
+      update_only: true
+      update_cache: true
+    when: ansible_distribution == "CentOS"
+  - name: install updates (Ubuntu)
+    tags: always
+    apt:
+      upgrade: dist
+      update_cache: true
+    when: ansible_distribution == "Ubuntu"
+
+# users
+- hosts: all
+  become: true
+  tasks:
+    - name: Create ansible-deploy user
+      tags: always
+      user:
+        name: ansible-deploy
+        groups: root
+    - name: Add ssh key for ansible-deploy
+      tags: always
+      authorized_key:
+        user: ansible-deploy
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICqgBylQdXDV1/xthVkXN6Fvn/8XZfd7hT8kmj5V5zBl ansible"
+    - name: Add sudoers file for ansible-deploy
+      tags: always
+      copy:
+        src: sudoer_ansible_deploy
+        dest: /etc/sudoers.d/ansible-deploy
+        owner: root
+        group: root
+        mode: 0440
